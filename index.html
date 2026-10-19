@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Математический супер-тренажёр: Дроби, Степени и Корни</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #fff0f5 0%, #ffe4ec 50%, #fbe7ef 100%);
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --card-border: #ffd1dc;
+      --primary: #f27294;
+      --primary-hover: #e0587d;
+      --accent: #ffb7c5;
+      --text: #4a3b42;
+      --text-muted: #8c737d;
+      --success: #2b9348;
+      --success-bg: #eafaf1;
+      --error: #e63946;
+      --error-bg: #fde8e9;
+      --shadow: 0 10px 30px rgba(235, 131, 158, 0.15);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; }
+    
+    body {
+      background: var(--bg-gradient);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    header {
+      text-align: center;
+      padding: 6px 0;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #ffd6e0;
+      color: #b33958;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #7d2e46;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Сетка категорий (4 блока) */
+    .sections-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .sections-grid {
+        grid-template-columns: 1fr;
+      }
+      h1 { font-size: 24px; }
+    }
+
+    .category-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 2px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s;
+    }
+
+    .category-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .category-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: #ffe3ec;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .category-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #632235;
+    }
+
+    .ops-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .op-btn {
+      background: #fff;
+      border: 1.5px solid var(--card-border);
+      color: var(--text);
+      padding: 9px 6px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 4px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .op-btn:hover {
+      background: #fff5f8;
+      border-color: var(--primary);
+    }
+
+    .op-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 14px rgba(242, 114, 148, 0.35);
+    }
+
+    /* Игровая карточка (Тренажер) */
+    .trainer-card {
+      background: #ffffff;
+      border: 2px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 26px 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      position: relative;
+    }
+
+    .stats-row {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px dashed var(--card-border);
+      padding-bottom: 12px;
+    }
+
+    .streak-badge {
+      background: #fff0f3;
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid #ffd1dc;
+    }
+
+    /* Форматирование уравнений */
+    .equation-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 26px;
+      font-weight: 700;
+      color: #542230;
+      min-height: 80px;
+      flex-wrap: wrap;
+    }
+
+    .fraction-view {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      vertical-align: middle;
+      font-size: 22px;
+    }
+
+    .fraction-num {
+      border-bottom: 2.5px solid #542230;
+      padding: 2px 6px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .fraction-den {
+      padding: 2px 6px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .sqrt-symbol {
+      font-size: 32px;
+      line-height: 1;
+      margin-right: -2px;
+    }
+
+    .sqrt-content {
+      border-top: 2.5px solid #542230;
+      padding: 0 4px;
+      display: inline-block;
+    }
+
+    sup {
+      font-size: 16px;
+      vertical-align: super;
+      line-height: 0;
+      color: #9c2e4f;
+    }
+
+    /* Поля ввода ответа */
+    .input-fraction-box {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .input-fraction-box input {
+      width: 60px;
+      height: 40px;
+      text-align: center;
+      font-size: 19px;
+      font-weight: 700;
+      border: 2px solid var(--card-border);
+      border-radius: 10px;
+      background: #fff8fa;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input-fraction-box input:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(242, 114, 148, 0.2);
+    }
+
+    .fraction-divider-input {
+      width: 60px;
+      height: 2.5px;
+      background-color: var(--primary);
+      border-radius: 2px;
+    }
+
+    .simple-input {
+      width: 120px;
+      height: 44px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      background: #fff8fa;
+      color: var(--text);
+      outline: none;
+    }
+
+    .simple-input:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(242, 114, 148, 0.2);
+    }
+
+    /* Кнопки действий */
+    .actions {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 15px rgba(242, 114, 148, 0.35);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-next {
+      background: #ffe3ec;
+      color: #9c2e4f;
+      border: 1.5px solid var(--card-border);
+    }
+
+    .btn-next:hover {
+      background: #ffd6e4;
+    }
+
+    /* Результат и фидбек */
+    .feedback {
+      min-height: 26px;
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .feedback.success { color: var(--success); }
+    .feedback.error { color: var(--error); }
+    .hint-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 540px;
+      line-height: 1.4;
+    }
+
+    /* КАРТОЧКА ИСТОРИИ */
+    .history-card {
+      background: var(--card-bg);
+      border: 2px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .history-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #632235;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .history-stats {
+      display: flex;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stat-pill {
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--card-border);
+    }
+    .stat-pill.correct { color: var(--success); }
+    .stat-pill.wrong { color: var(--error); }
+
+    .clear-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 4px 6px;
+    }
+    .clear-btn:hover { color: var(--error); }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .history-list::-webkit-scrollbar { width: 6px; }
+    .history-list::-webkit-scrollbar-track { background: #ffeef3; border-radius: 10px; }
+    .history-list::-webkit-scrollbar-thumb { background: #ffccd7; border-radius: 10px; }
+
+    .history-item {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .history-item.is-correct { border-left: 5px solid var(--success); }
+    .history-item.is-wrong { border-left: 5px solid var(--error); }
+
+    .history-math {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: #4a3b42;
+    }
+
+    .history-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-tag {
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .status-tag.ok { background: var(--success-bg); color: var(--success); }
+    .status-tag.bad { background: var(--error-bg); color: var(--error); }
+
+    .empty-history {
+      text-align: center;
+      padding: 24px 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="badge">Математический портал • 5–8 классы</div>
+    <h1>Магия Алгебры ✨</h1>
+    <p class="subtitle">Тренируй обыкновенные и десятичные дроби, свойства степеней и корней</p>
+  </header>
+
+  <!-- БЛОКИ ВЫБОРА РЕЖИМОВ (4 БЛОКА) -->
+  <div class="sections-grid">
+    
+    <!-- БЛОК 1: ОБЫКНОВЕННЫЕ ДРОБИ -->
+    <div class="category-card">
+      <div class="category-header">
+        <div class="category-icon">½</div>
+        <div>
+          <div class="category-title">Обыкновенные дроби</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Числитель и знаменатель</div>
+        </div>
+      </div>
+      <div class="ops-grid">
+        <button class="op-btn active" onclick="setMode('common', '+', this)">➕ Сложение</button>
+        <button class="op-btn" onclick="setMode('common', '-', this)">➖ Вычитание</button>
+        <button class="op-btn" onclick="setMode('common', '×', this)">✖️ Умножение</button>
+        <button class="op-btn" onclick="setMode('common', '÷', this)">➗ Деление</button>
+      </div>
+    </div>
+
+    <!-- БЛОК 2: ДЕСЯТИЧНЫЕ ДРОБИ -->
+    <div class="category-card">
+      <div class="category-header">
+        <div class="category-icon">0.5</div>
+        <div>
+          <div class="category-title">Десятичные дроби</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Числа с запятой</div>
+        </div>
+      </div>
+      <div class="ops-grid">
+        <button class="op-btn" onclick="setMode('decimal', '+', this)">➕ Сложение</button>
+        <button class="op-btn" onclick="setMode('decimal', '-', this)">➖ Вычитание</button>
+        <button class="op-btn" onclick="setMode('decimal', '×', this)">✖️ Умножение</button>
+        <button class="op-btn" onclick="setMode('decimal', '÷', this)">➗ Деление</button>
+      </div>
+    </div>
+
+    <!-- БЛОК 3: СВОЙСТВА СТЕПЕНЕЙ -->
+    <div class="category-card">
+      <div class="category-header">
+        <div class="category-icon">xⁿ</div>
+        <div>
+          <div class="category-title">Свойства степеней</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Показатели и степени</div>
+        </div>
+      </div>
+      <div class="ops-grid">
+        <button class="op-btn" onclick="setMode('power', 'mult', this)">✖️ aᵐ · aⁿ</button>
+        <button class="op-btn" onclick="setMode('power', 'div', this)">➗ aᵐ : aⁿ</button>
+        <button class="op-btn" onclick="setMode('power', 'pow', this)">⚡ (aᵐ)ⁿ</button>
+        <button class="op-btn" onclick="setMode('power', 'val', this)">🔢 Вычисли aⁿ</button>
+      </div>
+    </div>
+
+    <!-- БЛОК 4: СВОЙСТВА КОРНЯ -->
+    <div class="category-card">
+      <div class="category-header">
+        <div class="category-icon">√x</div>
+        <div>
+          <div class="category-title">Свойства корней</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Квадратные корни</div>
+        </div>
+      </div>
+      <div class="ops-grid">
+        <button class="op-btn" onclick="setMode('root', 'calc', this)">🎯 √a (точный)</button>
+        <button class="op-btn" onclick="setMode('root', 'mult', this)">✖️ √a · √b</button>
+        <button class="op-btn" onclick="setMode('root', 'div', this)">➗ √(a / b)</button>
+        <button class="op-btn" onclick="setMode('root', 'sq', this)">⚡ (√a)²</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- КАРТОЧКА ПРИМЕРА -->
+  <div class="trainer-card">
+    <div class="stats-row">
+      <span id="modeTitle">Обыкновенные дроби • Сложение</span>
+      <div class="streak-badge">⭐ Серия: <span id="streakCount">0</span></div>
+    </div>
+
+    <!-- Область отображения уравнения -->
+    <div class="equation-box" id="equationContainer"></div>
+
+    <!-- Статус проверки -->
+    <div class="feedback" id="feedback">Решай пример и жми «Проверить»!</div>
+
+    <!-- Кнопки управления -->
+    <div class="actions">
+      <button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()">Проверить</button>
+      <button class="btn btn-next" onclick="generateTask()">Следующий ➜</button>
+    </div>
+
+    <div class="hint-text" id="hintFooter">
+      💡 Вводи ответ в поле и нажимай Enter или кнопку «Проверить».
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА ИСТОРИИ -->
+  <div class="history-card">
+    <div class="history-header">
+      <div class="history-title">
+        <span>📖 История решений</span>
+      </div>
+      <div class="history-stats">
+        <span class="stat-pill">Всего: <b id="statTotal">0</b></span>
+        <span class="stat-pill correct">Верно: <b id="statCorrect">0</b></span>
+        <span class="stat-pill wrong">Ошибок: <b id="statWrong">0</b></span>
+      </div>
+      <button class="clear-btn" onclick="clearHistory()">Очистить журнал</button>
+    </div>
+
+    <div class="history-list" id="historyList">
+      <div class="empty-history">История пока пуста. Реши свой первый пример выше! ✨</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Состояние
+  let currentCategory = 'common';
+  let currentOp = '+';
+  let streak = 0;
+  let currentTask = null;
+
+  // Инициализация истории из localStorage
+  let historyData = [];
+  try {
+    const saved = localStorage.getItem('math_portal_history');
+    if (saved) historyData = JSON.parse(saved);
+  } catch(e) {
+    historyData = [];
+  }
+
+  function saveHistoryToStorage() {
+    try {
+      localStorage.setItem('math_portal_history', JSON.stringify(historyData));
+    } catch(e) {}
+  }
+
+  function setMode(category, op, btn) {
+    currentCategory = category;
+    currentOp = op;
+
+    document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const catTitles = {
+      'common': 'Обыкновенные дроби',
+      'decimal': 'Десятичные дроби',
+      'power': 'Свойства степеней',
+      'root': 'Свойства корней'
+    };
+
+    const opTitles = {
+      '+': 'Сложение', '-': 'Вычитание', '×': 'Умножение', '÷': 'Деление',
+      'mult': 'Произведение', 'div': 'Частное', 'pow': 'Степень в степени', 'val': 'Вычисление',
+      'calc': 'Извлечение', 'sq': 'Квадрат корня'
+    };
+
+    document.getElementById('modeTitle').innerText = `${catTitles[category]} • ${opTitles[op] || op}`;
+    generateTask();
+  }
+
+  // Генерация задач
+  function generateTask() {
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('feedback').innerText = "Решай пример и жми «Проверить»!";
+    const container = document.getElementById('equationContainer');
+    container.innerHTML = '';
+
+    if (currentCategory === 'common') {
+      generateCommonTask(container);
+    } else if (currentCategory === 'decimal') {
+      generateDecimalTask(container);
+    } else if (currentCategory === 'power') {
+      generatePowerTask(container);
+    } else if (currentCategory === 'root') {
+      generateRootTask(container);
+    }
+  }
+
+  // 1. ОБЫКНОВЕННЫЕ ДРОБИ
+  function generateCommonTask(container) {
+    let n1, d1, n2, d2;
+    const dens = [2, 3, 4, 5, 6, 8, 10];
+
+    d1 = dens[Math.floor(Math.random() * dens.length)];
+    d2 = dens[Math.floor(Math.random() * dens.length)];
+    n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
+    n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+
+    if (currentOp === '-') {
+      if (n1 * d2 < n2 * d1) {
+        [n1, n2] = [n2, n1];
+        [d1, d2] = [d2, d1];
+      }
+      if (n1 * d2 === n2 * d1) n1++;
+    }
+
+    let targetNum, targetDen;
+    if (currentOp === '+') {
+      targetNum = n1 * d2 + n2 * d1;
+      targetDen = d1 * d2;
+    } else if (currentOp === '-') {
+      targetNum = n1 * d2 - n2 * d1;
+      targetDen = d1 * d2;
+    } else if (currentOp === '×') {
+      targetNum = n1 * n2;
+      targetDen = d1 * d2;
+    } else if (currentOp === '÷') {
+      targetNum = n1 * d2;
+      targetDen = d1 * n2;
+    }
+
+    currentTask = {
+      type: 'common',
+      taskText: `${n1}/${d1} ${currentOp} ${n2}/${d2}`,
+      targetNum,
+      targetDen
+    };
+
+    container.innerHTML = `
+      <div class="fraction-view"><div class="fraction-num">${n1}</div><div class="fraction-den">${d1}</div></div>
+      <div>${currentOp}</div>
+      <div class="fraction-view"><div class="fraction-num">${n2}</div><div class="fraction-den">${d2}</div></div>
+      <div>=</div>
+      <div class="input-fraction-box">
+        <input type="number" id="ansNum" placeholder="?" autocomplete="off">
+        <div class="fraction-divider-input"></div>
+        <input type="number" id="ansDen" placeholder="?" autocomplete="off">
+      </div>
+    `;
+
+    document.getElementById('ansNum').focus();
+    bindEnterKey(['ansNum', 'ansDen']);
+    document.getElementById('hintFooter').innerText = '💡 Можно вводить несокращенную дробь — система проверит её правильность.';
+  }
+
+  // 2. ДЕСЯТИЧНЫЕ ДРОБИ
+  function generateDecimalTask(container) {
+    let a, b, res;
+
+    if (currentOp === '+' || currentOp === '-') {
+      a = +(Math.random() * 8 + 1).toFixed(1);
+      b = +(Math.random() * 8 + 1).toFixed(1);
+      if (currentOp === '-' && a < b) [a, b] = [b, a];
+      res = currentOp === '+' ? a + b : a - b;
+    } else if (currentOp === '×') {
+      a = +(Math.random() * 4 + 0.5).toFixed(1);
+      b = +(Math.random() * 4 + 0.5).toFixed(1);
+      res = a * b;
+    } else if (currentOp === '÷') {
+      b = +(Math.random() * 3 + 0.5).toFixed(1);
+      let quotient = Math.floor(Math.random() * 6 + 2);
+      a = +(b * quotient).toFixed(2);
+      res = +(a / b).toFixed(2);
+    }
+
+    const aStr = a.toString().replace('.', ',');
+    const bStr = b.toString().replace('.', ',');
+
+    currentTask = {
+      type: 'decimal',
+      taskText: `${aStr} ${currentOp} ${bStr}`,
+      targetVal: Math.round(res * 1000) / 1000
+    };
+
+    container.innerHTML = `
+      <span>${aStr}</span>
+      <span>${currentOp}</span>
+      <span>${bStr}</span>
+      <span>=</span>
+      <input type="text" id="ansSimple" class="simple-input" placeholder="?" autocomplete="off">
+    `;
+
+    document.getElementById('ansSimple').focus();
+    bindEnterKey(['ansSimple']);
+    document.getElementById('hintFooter').innerText = '💡 Можно использовать и точку, и запятую.';
+  }
+
+  // 3. СВОЙСТВА СТЕПЕНЕЙ
+  function generatePowerTask(container) {
+    let taskHtml = "";
+    let taskText = "";
+    let targetVal = 0;
+    const baseNames = ['x', 'y', 'a', 'b', 'c', '2', '3', '5'];
+    const varName = baseNames[Math.floor(Math.random() * 5)]; // буквенные для правил
+
+    if (currentOp === 'mult') {
+      // a^m * a^n = a^(m+n) -> спрашиваем показатель степени
+      const m = Math.floor(Math.random() * 8) + 2;
+      const n = Math.floor(Math.random() * 8) + 2;
+      targetVal = m + n;
+      taskText = `${varName}^${m} · ${varName}^${n} = ${varName}^?`;
+      taskHtml = `<span>${varName}<sup>${m}</sup> · ${varName}<sup>${n}</sup> = ${varName}<sup>?</sup></span>
+                  <div style="font-size:16px; margin: 0 4px; color:var(--text-muted);">показатель =</div>
+                  <input type="number" id="ansSimple" class="simple-input" style="width:70px;" placeholder="?" autocomplete="off">`;
+      document.getElementById('hintFooter').innerText = '💡 Правило: при умножении степеней с одинаковым основанием показатели складываются (m + n).';
+    } 
+    else if (currentOp === 'div') {
+      // a^m : a^n = a^(m-n)
+      const n = Math.floor(Math.random() * 5) + 2;
+      const diff = Math.floor(Math.random() * 6) + 1;
+      const m = n + diff;
+      targetVal = diff;
+      taskText = `${varName}^${m} : ${varName}^${n} = ${varName}^?`;
+      taskHtml = `<span>${varName}<sup>${m}</sup> : ${varName}<sup>${n}</sup> = ${varName}<sup>?</sup></span>
+                  <div style="font-size:16px; margin: 0 4px; color:var(--text-muted);">показатель =</div>
+                  <input type="number" id="ansSimple" class="simple-input" style="width:70px;" placeholder="?" autocomplete="off">`;
+      document.getElementById('hintFooter').innerText = '💡 Правило: при делении степеней с одинаковым основанием показатели вычитаются (m - n).';
+    } 
+    else if (currentOp === 'pow') {
+      // (a^m)^n = a^(m*n)
+      const m = Math.floor(Math.random() * 4) + 2;
+      const n = Math.floor(Math.random() * 3) + 2;
+      targetVal = m * n;
+      taskText = `(${varName}^${m})^${n} = ${varName}^?`;
+      taskHtml = `<span>(${varName}<sup>${m}</sup>)<sup>${n}</sup> = ${varName}<sup>?</sup></span>
+                  <div style="font-size:16px; margin: 0 4px; color:var(--text-muted);">показатель =</div>
+                  <input type="number" id="ansSimple" class="simple-input" style="width:70px;" placeholder="?" autocomplete="off">`;
+      document.getElementById('hintFooter').innerText = '💡 Правило: при возведении степени в степень показатели перемножаются (m · n).';
+    } 
+    else if (currentOp === 'val') {
+      // Вычисли число: 2^4, 3^3, 5^2, 10^3, a^0 = 1
+      const isZeroPow = Math.random() < 0.25;
+      if (isZeroPow) {
+        const randBase = Math.floor(Math.random() * 90) + 10;
+        targetVal = 1;
+        taskText = `${randBase}^0`;
+        taskHtml = `<span>${randBase}<sup>0</sup> = </span>
+                    <input type="number" id="ansSimple" class="simple-input" placeholder="?" autocomplete="off">`;
+        document.getElementById('hintFooter').innerText = '💡 Любое число (кроме нуля) в нулевой степени равно 1!';
+      } else {
+        const bases = [2, 3, 4, 5, 10];
+        const base = bases[Math.floor(Math.random() * bases.length)];
+        let p = 2;
+        if (base === 2) p = Math.floor(Math.random() * 4) + 2; // 2^2..2^5
+        else if (base === 3) p = Math.floor(Math.random() * 3) + 2; // 3^2..3^4
+        else if (base === 10) p = Math.floor(Math.random() * 3) + 1; // 10^1..10^3
+        else p = 2; // 4^2, 5^2
+
+        targetVal = Math.pow(base, p);
+        taskText = `${base}^${p}`;
+        taskHtml = `<span>${base}<sup>${p}</sup> = </span>
+                    <input type="number" id="ansSimple" class="simple-input" placeholder="?" autocomplete="off">`;
+        document.getElementById('hintFooter').innerText = '💡 Умножь основание само на себя указанное число раз.';
+      }
+    }
+
+    currentTask = {
+      type: 'power',
+      taskText,
+      targetVal
+    };
+
+    container.innerHTML = taskHtml;
+    document.getElementById('ansSimple').focus();
+    bindEnterKey(['ansSimple']);
+  }
+
+  // 4. СВОЙСТВА КОРНЕЙ
+  function generateRootTask(container) {
+    let taskHtml = "";
+    let taskText = "";
+    let targetVal = 0;
+
+    if (currentOp === 'calc') {
+      // Точный корень: √4, √9, √16, √25, √36, √49, √64, √81, √100, √121, √144
+      const roots = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      const ans = roots[Math.floor(Math.random() * roots.length)];
+      const sq = ans * ans;
+      targetVal = ans;
+      taskText = `√${sq}`;
+      taskHtml = `<span><span class="sqrt-symbol">√</span><span class="sqrt-content">${sq}</span> = </span>
+                  <input type="number" id="ansSimple" class="simple-input" placeholder="?" autocomplete="off">`;
+      document.getElementById('hintFooter').innerText = '💡 Вспомни таблицу умножения: какое число, умноженное само на себя, даёт подкоренное число?';
+    }
+    else if (currentOp === 'mult') {
+      // √a * √b = √(a*b) -> вычислить целое число. Например: √2 * √8 = √16 = 4; √3 * √12 = √36 = 6; √5 * √20 = √100 = 10
+      const pairs = [
+        { a: 2, b: 8, res: 4 },
+        { a: 3, b: 12, res: 6 },
+        { a: 2, b: 18, res: 6 },
+        { a: 5, b: 20, res: 10 },
+        { a: 2, b: 32, res: 8 },
+        { a: 2, b: 50, res: 10 },
+        { a: 3, b: 27, res: 9 }
+      ];
+      const pick = pairs[Math.floor(Math.random() * pairs.length)];
+      targetVal = pick.res;
+      taskText = `√${pick.a} · √${pick.b}`;
+      taskHtml = `<span><span class="sqrt-symbol">√</span><span class="sqrt-content">${pick.a}</span> · <span class="sqrt-symbol">√</span><span class="sqrt-content">${pick.b}</span> = </span>
+                  <input type="number" id="ansSimple" class="simple-input" placeholder="?" autocomplete="off">`;
+      document.getElementById('hintFooter').innerText = '💡 Правило: произведение корней равно корню из произведения: √a · √b = √(a · b).';
+    }
+    else if (currentOp === 'div') {
+      // √(a / b) = √a / √b. Например: √50 / √2 = √25 = 5; √48 / √3 = √16 = 4; √75 / √3 = 5; √72 / √2 = 6
+      const divPairs = [
+        { a: 50, b: 2, res: 5 },
+        { a: 48, b: 3, res: 4 },
+        { a: 75, b: 3, res: 5 },
+        { a: 72, b: 2, res: 6 },
+        { a: 98, b: 2, res: 7 },
+        { a: 80, b: 5, res: 4 },
+        { a: 32, b: 2, res: 4 }
+      ];
+      const pick = divPairs[Math.floor(Math.random() * divPairs.length)];
+      targetVal = pick.res;
+      taskText = `√${pick.a} : √${pick.b}`;
+      taskHtml = `<span><span class="sqrt-symbol">√</span><span class="sqrt-content">${pick.a}</span> : <span class="sqrt-symbol">√</span><span class="sqrt-content">${pick.b}</span> = </span>
+                  <input type="number" id="ansSimple" class="simple-input" placeholder="?" autocomplete="off">`;
+      document.getElementById('hintFooter').innerText = '💡 Правило: частное корней равно корню из частного: √a : √b = √(a : b).';
+    }
+    else if (currentOp === 'sq') {
+      // (√a)^2 = a
+      const a = Math.floor(Math.random() * 50) + 3;
+      targetVal = a;
+      taskText = `(√${a})²`;
+      taskHtml = `<span>(<span class="sqrt-symbol">√</span><span class="sqrt-content">${a}</span>)<sup>2</sup> = </span>
+                  <input type="number" id="ansSimple" class="simple-input" placeholder="?" autocomplete="off">`;
+      document.getElementById('hintFooter').innerText = '💡 Квадрат и квадратный корень взаимно уничтожают друг друга: (√a)² = a.';
+    }
+
+    currentTask = {
+      type: 'root',
+      taskText,
+      targetVal
+    };
+
+    container.innerHTML = taskHtml;
+    document.getElementById('ansSimple').focus();
+    bindEnterKey(['ansSimple']);
+  }
+
+  function bindEnterKey(ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') checkAnswer();
+        });
+      }
+    });
+  }
+
+  // Универсальная проверка
+  function checkAnswer() {
+    const feedback = document.getElementById('feedback');
+    if (!currentTask) return;
+
+    let isCorrect = false;
+    let userAnswerText = "";
+
+    if (currentTask.type === 'common') {
+      const userNum = parseInt(document.getElementById('ansNum').value);
+      const userDen = parseInt(document.getElementById('ansDen').value);
+
+      if (isNaN(userNum) || isNaN(userDen) || userDen === 0) {
+        feedback.className = 'feedback error';
+        feedback.innerText = '⚠️ Заполни числитель и знаменатель (не ноль)!';
+        return;
+      }
+
+      userAnswerText = `${userNum}/${userDen}`;
+      if (userNum * currentTask.targetDen === userDen * currentTask.targetNum) {
+        isCorrect = true;
+      }
+    } 
+    else if (currentTask.type === 'decimal') {
+      const valStr = document.getElementById('ansSimple').value.replace(',', '.').trim();
+      const userVal = parseFloat(valStr);
+
+      if (isNaN(userVal)) {
+        feedback.className = 'feedback error';
+        feedback.innerText = '⚠️ Введи число!';
+        return;
+      }
+
+      userAnswerText = valStr.replace('.', ',');
+      if (Math.abs(userVal - currentTask.targetVal) < 0.001) {
+        isCorrect = true;
+      }
+    } 
+    else {
+      // power и root
+      const valStr = document.getElementById('ansSimple').value.trim();
+      const userVal = parseInt(valStr);
+
+      if (isNaN(userVal)) {
+        feedback.className = 'feedback error';
+        feedback.innerText = '⚠️ Введи число!';
+        return;
+      }
+
+      userAnswerText = valStr;
+      if (userVal === currentTask.targetVal) {
+        isCorrect = true;
+      }
+    }
+
+    // Сохранение в историю
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    historyData.unshift({
+      task: currentTask.taskText,
+      answer: userAnswerText,
+      isCorrect: isCorrect,
+      time: timeStr
+    });
+
+    if (historyData.length > 50) historyData.pop();
+    saveHistoryToStorage();
+    renderHistory();
+
+    if (isCorrect) {
+      streak++;
+      feedback.className = 'feedback success';
+      feedback.innerText = '✨ Великолепно! Абсолютно верный ответ!';
+      document.getElementById('streakCount').innerText = streak;
+      setTimeout(() => { generateTask(); }, 1200);
+    } else {
+      streak = 0;
+      feedback.className = 'feedback error';
+      feedback.innerText = '❌ Ошибочка. Попробуй ещё раз!';
+      document.getElementById('streakCount').innerText = streak;
+    }
+  }
+
+  // Отрисовка журнала
+  function renderHistory() {
+    const list = document.getElementById('historyList');
+    const totalEl = document.getElementById('statTotal');
+    const correctEl = document.getElementById('statCorrect');
+    const wrongEl = document.getElementById('statWrong');
+
+    if (!historyData.length) {
+      list.innerHTML = `<div class="empty-history">История пока пуста. Выбери режим и реши свой первый пример выше! ✨</div>`;
+      totalEl.innerText = "0";
+      correctEl.innerText = "0";
+      wrongEl.innerText = "0";
+      return;
+    }
+
+    let correctCount = 0;
+    list.innerHTML = "";
+
+    historyData.forEach(item => {
+      if (item.isCorrect) correctCount++;
+      const row = document.createElement("div");
+      row.className = `history-item ${item.isCorrect ? 'is-correct' : 'is-wrong'}`;
+      row.innerHTML = `
+        <div class="history-math">
+          <span>${item.task}</span>
+          <span style="color:var(--text-muted);">=</span>
+          <span style="font-weight:700;">${item.answer}</span>
+        </div>
+        <div class="history-meta">
+          <span class="status-tag ${item.isCorrect ? 'ok' : 'bad'}">
+            ${item.isCorrect ? '✓ Верно' : '✗ Ошибка'}
+          </span>
+          <span>${item.time}</span>
+        </div>
+      `;
+      list.appendChild(row);
+    });
+
+    totalEl.innerText = historyData.length;
+    correctEl.innerText = correctCount;
+    wrongEl.innerText = historyData.length - correctCount;
+  }
+
+  function clearHistory() {
+    if (confirm("Точно очистить всю историю решений?")) {
+      historyData = [];
+      saveHistoryToStorage();
+      renderHistory();
+    }
+  }
+
+  // Запуск при старте
+  renderHistory();
+  generateTask();
+</script>
+
+</body>
+</html>
