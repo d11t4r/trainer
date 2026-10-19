@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Математический тренажёр: Дроби (5-6 класс)</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #ffdde1 50%, #f8bbd0 100%);
+            --card-bg: rgba(255, 255, 255, 0.72);
+            --card-border: rgba(255, 255, 255, 0.85);
+            --primary: #e84a7f;
+            --primary-hover: #d4376c;
+            --primary-light: #ffebf0;
+            --text-main: #4a2538;
+            --text-muted: #8c5870;
+            --success: #2e9f65;
+            --success-bg: rgba(46, 159, 101, 0.12);
+            --error: #d9385a;
+            --error-bg: rgba(217, 56, 90, 0.12);
+            --radius: 20px;
+            --shadow: 0 10px 30px rgba(216, 82, 128, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 780px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            background: var(--primary-light);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(232, 74, 127, 0.2);
+        }
+
+        .change-name-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            font-weight: 700;
+        }
+
+        .stat-pill {
+            background: white;
+            padding: 8px 14px;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            font-size: 0.95rem;
+        }
+
+        /* Navigation & Controls */
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .block-tabs, .level-tabs, .action-tabs {
+            display: grid;
+            gap: 8px;
+        }
+
+        .block-tabs {
+            grid-template-columns: 1fr 1fr;
+            margin-bottom: 16px;
+        }
+
+        .level-tabs {
+            grid-template-columns: repeat(3, 1fr);
+            margin-bottom: 16px;
+        }
+
+        .action-tabs {
+            grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+        }
+
+        .btn-tab {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1.5px solid rgba(232, 74, 127, 0.18);
+            color: var(--text-main);
+            padding: 11px 12px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-tab:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .btn-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 6px 16px rgba(232, 74, 127, 0.3);
+        }
+
+        /* Game Arena */
+        .arena {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 16px;
+            text-align: center;
+            min-height: 250px;
+            justify-content: center;
+        }
+
+        .task-hint {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+            font-weight: 500;
+        }
+
+        .equation-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        /* Fraction Display */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            line-height: 1.1;
+        }
+
+        .fraction .num {
+            padding: 0 10px 4px;
+            border-bottom: 3px solid var(--text-main);
+            min-width: 44px;
+            text-align: center;
+        }
+
+        .fraction .den {
+            padding: 4px 10px 0;
+            min-width: 44px;
+            text-align: center;
+        }
+
+        /* Inputs */
+        .fraction-input {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fraction-input .line {
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .math-input {
+            width: 85px;
+            height: 48px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            background: white;
+            border: 2px solid rgba(232, 74, 127, 0.35);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .math-input.decimal-input {
+            width: 150px;
+            height: 54px;
+        }
+
+        .math-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(232, 74, 127, 0.15);
+        }
+
+        /* Action Buttons in Arena */
+        .arena-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn-main {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 13px 28px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 6px 18px rgba(232, 74, 127, 0.28);
+        }
+
+        .btn-main:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 11px 22px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+        }
+
+        /* Feedback */
+        .feedback {
+            margin-top: 18px;
+            padding: 12px 20px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .feedback.success {
+            display: block;
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(46, 159, 101, 0.3);
+        }
+
+        .feedback.error {
+            display: block;
+            background: var(--error-bg);
+            color: var(--error);
+            border: 1px solid rgba(217, 56, 90, 0.3);
+        }
+
+        /* History Section */
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+            transition: 0.2s;
+        }
+
+        .btn-download {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-clear {
+            background: rgba(217, 56, 90, 0.1);
+            color: var(--error);
+        }
+
+        .btn-clear:hover {
+            background: rgba(217, 56, 90, 0.2);
+        }
+
+        .history-list {
+            max-height: 240px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 4px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 14px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.92rem;
+            border-left: 4px solid transparent;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-item.ok {
+            border-left-color: var(--success);
+        }
+
+        .history-item.fail {
+            border-left-color: var(--error);
+        }
+
+        .history-meta {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* Welcome Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(74, 37, 56, 0.45);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background: rgba(255, 255, 255, 0.92);
+            border: 2px solid white;
+            border-radius: 24px;
+            padding: 32px 24px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(74, 37, 56, 0.25);
+        }
+
+        .modal-card h2 {
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 1.6rem;
+        }
+
+        .modal-card p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 2px solid rgba(232, 74, 127, 0.35);
+            font-size: 1.05rem;
+            margin-bottom: 16px;
+            outline: none;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .name-input:focus {
+            border-color: var(--primary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 520px) {
+            .equation-box {
+                font-size: 1.6rem;
+                gap: 10px;
+            }
+            .math-input {
+                width: 72px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
+            .math-input.decimal-input {
+                width: 130px;
+            }
+            .action-tabs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Модальное окно приветствия -->
+    <div class="modal-overlay" id="welcomeModal">
+        <div class="modal-card">
+            <h2>🌸 Привет!</h2>
+            <p>Добро пожаловать в тренажёр по дробям для 5–6 классов. Введи своё имя и фамилию, чтобы сохранять историю решений:</p>
+            <input type="text" id="studentNameInput" class="name-input" placeholder="Например: Анна Иванова" maxlength="40" autocomplete="off">
+            <button class="btn-main" style="width: 100%;" onclick="saveStudentName()">Начать тренировку ✨</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Шапка -->
+        <header class="glass-card">
+            <div class="user-badge">
+                <span>👩‍🎓 Ученик: <strong id="displayStudentName">Гость</strong></span>
+                <button class="change-name-btn" onclick="openNameModal()">изменить</button>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-pill">🔥 Серия: <span id="streakCount">0</span></div>
+                <div class="stat-pill">✅ Верно: <span id="totalCorrect">0</span> / <span id="totalSolved">0</span></div>
+            </div>
+        </header>
+
+        <!-- Панель выбора режима и сложности -->
+        <div class="glass-card">
+            <div class="section-title">1. Выбери раздел</div>
+            <div class="block-tabs">
+                <button class="btn-tab active" id="tab-common" onclick="selectBlock('common')">🍰 Обыкновенные дроби</button>
+                <button class="btn-tab" id="tab-decimal" onclick="selectBlock('decimal')">🔟 Десятичные дроби</button>
+            </div>
+
+            <div class="section-title">2. Уровень сложности</div>
+            <div class="level-tabs">
+                <button class="btn-tab active" id="lvl-1" onclick="selectLevel(1)">⭐ Уровень 1</button>
+                <button class="btn-tab" id="lvl-2" onclick="selectLevel(2)">⭐⭐ Уровень 2</button>
+                <button class="btn-tab" id="lvl-3" onclick="selectLevel(3)">⭐⭐⭐ Уровень 3</button>
+            </div>
+
+            <div class="section-title">3. Действие</div>
+            <div class="action-tabs" id="actionTabs">
+                <button class="btn-tab active" data-op="add" onclick="selectOp('add')">➕ Сложение</button>
+                <button class="btn-tab" data-op="sub" onclick="selectOp('sub')">➖ Вычитание</button>
+                <button class="btn-tab" data-op="mul" onclick="selectOp('mul')">✖️ Умножение</button>
+                <button class="btn-tab" data-op="div" onclick="selectOp('div')">➗ Деление</button>
+                <button class="btn-tab" id="reduceTab" data-op="red" onclick="selectOp('red')">✂️ Сокращение</button>
+            </div>
+        </div>
+
+        <!-- Игровая зона -->
+        <div class="glass-card arena">
+            <div class="task-hint" id="taskHint">Вычислите значение выражения:</div>
+
+            <div class="equation-box" id="equationBox">
+                <!-- Генерируется через JS -->
+            </div>
+
+            <div class="arena-controls">
+                <button class="btn-main" id="checkBtn" onclick="checkAnswer()">Проверить (Enter)</button>
+                <button class="btn-secondary" onclick="generateTask()">Следующий пример ➔</button>
+            </div>
+
+            <div class="feedback" id="feedbackBox"></div>
+        </div>
+
+        <!-- История решений -->
+        <div class="glass-card">
+            <div class="history-header">
+                <h3 style="font-size: 1.1rem;">📝 История решений</h3>
+                <div class="history-actions">
+                    <button class="btn-sm btn-download" onclick="downloadHistoryTxt()">💾 Скачать отчёт (.txt)</button>
+                    <button class="btn-sm btn-clear" onclick="clearHistory()">🗑️ Очистить</button>
+                </div>
+            </div>
+            <div class="history-list" id="historyList">
+                <!-- Записи истории -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Состояние приложения
+        let state = {
+            studentName: localStorage.getItem('math_trainer_name') || '',
+            block: 'common', // 'common' | 'decimal'
+            level: 1,        // 1 | 2 | 3
+            op: 'add',       // 'add' | 'sub' | 'mul' | 'div' | 'red'
+            streak: 0,
+            correctCount: 0,
+            totalCount: 0,
+            currentTask: null,
+            answeredCurrent: false,
+            history: JSON.parse(localStorage.getItem('math_trainer_history') || '[]')
+        };
+
+        // Математические утилиты
+        const gcd = (a, b) => {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) { [a, b] = [b, a % b]; }
+            return a || 1;
+        };
+
+        const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const randChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const fmtDec = (num) => Number(num.toFixed(6)).toString().replace('.', ',');
+
+        // Инициализация
+        window.addEventListener('DOMContentLoaded', () => {
+            if (state.studentName) {
+                document.getElementById('welcomeModal').style.display = 'none';
+                document.getElementById('displayStudentName').textContent = state.studentName;
+            } else {
+                setTimeout(() => document.getElementById('studentNameInput').focus(), 100);
+            }
+
+            // Пересчет статистики из сохраненной истории
+            state.totalCount = state.history.length;
+            state.correctCount = state.history.filter(h => h.isCorrect).length;
+            updateStatsUI();
+            renderHistory();
+            generateTask();
+
+            // Обработка Enter
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const modal = document.getElementById('welcomeModal');
+                    if (modal.style.display !== 'none') {
+                        saveStudentName();
+                        return;
+                    }
+                    if (!state.answeredCurrent) {
+                        checkAnswer();
+                    } else {
+                        generateTask();
+                    }
+                }
+            });
+        });
+
+        // Управление именем ученика
+        function saveStudentName() {
+            const input = document.getElementById('studentNameInput');
+            const name = input.value.trim() || 'Ученик';
+            state.studentName = name;
+            localStorage.setItem('math_trainer_name', name);
+            document.getElementById('displayStudentName').textContent = name;
+            document.getElementById('welcomeModal').style.display = 'none';
+            focusFirstInput();
+        }
+
+        function openNameModal() {
+            const modal = document.getElementById('welcomeModal');
+            const input = document.getElementById('studentNameInput');
+            input.value = state.studentName;
+            modal.style.display = 'flex';
+            input.focus();
+        }
+
+        // Переключение вкладок
+        function selectBlock(block) {
+            state.block = block;
+            document.getElementById('tab-common').classList.toggle('active', block === 'common');
+            document.getElementById('tab-decimal').classList.toggle('active', block === 'decimal');
+
+            const reduceTab = document.getElementById('reduceTab');
+            if (block === 'decimal') {
+                reduceTab.style.display = 'none';
+                if (state.op === 'red') state.op = 'add';
+            } else {
+                reduceTab.style.display = 'flex';
+            }
+            updateOpTabsUI();
+            generateTask();
+        }
+
+        function selectLevel(lvl) {
+            state.level = lvl;
+            [1, 2, 3].forEach(l => {
+                document.getElementById(`lvl-${l}`).classList.toggle('active', l === lvl);
+            });
+            generateTask();
+        }
+
+        function selectOp(op) {
+            state.op = op;
+            updateOpTabsUI();
+            generateTask();
+        }
+
+        function updateOpTabsUI() {
+            document.querySelectorAll('#actionTabs .btn-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.op === state.op);
+            });
+        }
+
+        // Генерация заданий
+        function generateTask() {
+            state.answeredCurrent = false;
+            document.getElementById('checkBtn').disabled = false;
+            const fb = document.getElementById('feedbackBox');
+            fb.className = 'feedback';
+            fb.textContent = '';
+
+            if (state.block === 'common') {
+                state.currentTask = generateCommonTask(state.op, state.level);
+                renderCommonArena(state.currentTask);
+            } else {
+                state.currentTask = generateDecimalTask(state.op, state.level);
+                renderDecimalArena(state.currentTask);
+            }
+            focusFirstInput();
+        }
+
+        // Генератор: Обыкновенные дроби
+        function generateCommonTask(op, level) {
+            if (op === 'red') {
+                let p, q, k;
+                do {
+                    p = randInt(1, level === 1 ? 5 : level === 2 ? 9 : 14);
+                    q = randInt(p + 1, level === 1 ? 7 : level === 2 ? 12 : 19);
+                } while (gcd(p, q) !== 1);
+
+                k = level === 1 ? randInt(2, 4) : level === 2 ? randInt(3, 7) : randInt(5, 12);
+                const n1 = p * k;
+                const d1 = q * k;
+
+                return {
+                    type: 'common',
+                    op: 'red',
+                    n1, d1,
+                    ansN: p,
+                    ansD: q,
+                    textExpr: `${n1}/${d1}`
+                };
+            }
+
+            let n1, d1, n2, d2, ansN, ansD, sym;
+
+            if (op === 'add' || op === 'sub') {
+                if (level === 1) {
+                    d1 = d2 = randInt(3, 12);
+                    n1 = randInt(1, d1 - 1);
+                    n2 = randInt(1, d2 - 1);
+                } else if (level === 2) {
+                    const dens = [2, 3, 4, 5, 6, 8, 9, 10, 12];
+                    d1 = randChoice(dens);
+                    d2 = randChoice(dens.filter(d => d !== d1));
+                    n1 = randInt(1, d1 - 1);
+                    n2 = randInt(1, d2 - 1);
+                } else {
+                    d1 = randInt(4, 18);
+                    d2 = randInt(4, 18);
+                    n1 = randInt(1, d1 + 3);
+                    n2 = randInt(1, d2 + 3);
+                }
+
+                if (op === 'sub') {
+                    // Гарантируем строго положительный результат
+                    if (n1 * d2 === n2 * d1) {
+                        n1 += 1;
+                    }
+                    if (n1 * d2 < n2 * d1) {
+                        [n1, n2] = [n2, n1];
+                        [d1, d2] = [d2, d1];
+                    }
+                    ansN = n1 * d2 - n2 * d1;
+                    ansD = d1 * d2;
+                    sym = '−';
+                } else {
+                    ansN = n1 * d2 + n2 * d1;
+                    ansD = d1 * d2;
+                    sym = '+';
+                }
+            } else if (op === 'mul') {
+                const maxD = level === 1 ? 6 : level === 2 ? 10 : 16;
+                d1 = randInt(2, maxD);
+                d2 = randInt(2, maxD);
+                n1 = randInt(1, d1 - 1);
+                n2 = randInt(1, d2 - 1);
+                ansN = n1 * n2;
+                ansD = d1 * d2;
+                sym = '·';
+            } else if (op === 'div') {
+                const maxD = level === 1 ? 6 : level === 2 ? 10 : 15;
+                d1 = randInt(2, maxD);
+                d2 = randInt(2, maxD);
+                n1 = randInt(1, d1 - 1);
+                n2 = randInt(1, d2 - 1);
+                ansN = n1 * d2;
+                ansD = d1 * n2;
+                sym = ':';
+            }
+
+            const g = gcd(ansN, ansD);
+            return {
+                type: 'common',
+                op, n1, d1, n2, d2, sym,
+                ansN: ansN / g,
+                ansD: ansD / g,
+                textExpr: `${n1}/${d1} ${sym} ${n2}/${d2}`
+            };
+        }
+
+        // Генератор: Десятичные дроби (с разным числом знаков после запятой!)
+        function makeDecimalWithPlaces(intMin, intMax, places) {
+            const intPart = randInt(intMin, intMax);
+            let fracStr = '';
+            for (let i = 0; i < places - 1; i++) {
+                fracStr += randInt(0, 9);
+            }
+            fracStr += randInt(1, 9); // Последняя цифра не 0, чтобы разрядность сохранялась
+            return parseFloat(`${intPart}.${fracStr}`);
+        }
+
+        function generateDecimalTask(op, level) {
+            let a, b, ans, sym;
+
+            // Выбираем разное количество знаков после запятой в зависимости от уровня
+            let p1, p2;
+            if (level === 1) {
+                [p1, p2] = randChoice([[1, 1], [1, 2], [2, 1]]);
+            } else if (level === 2) {
+                [p1, p2] = randChoice([[1, 2], [2, 1], [2, 2], [2, 3], [1, 3]]);
+            } else {
+                [p1, p2] = randChoice([[2, 3], [3, 2], [1, 3], [3, 1], [3, 3]]);
+            }
+
+            if (op === 'add') {
+                const maxInt = level === 1 ? 12 : level === 2 ? 35 : 80;
+                a = makeDecimalWithPlaces(1, maxInt, p1);
+                b = makeDecimalWithPlaces(1, maxInt, p2);
+                ans = Number((a + b).toFixed(4));
+                sym = '+';
+            } else if (op === 'sub') {
+                const maxInt = level === 1 ? 15 : level === 2 ? 40 : 90;
+                a = makeDecimalWithPlaces(1, maxInt, p1);
+                b = makeDecimalWithPlaces(1, maxInt, p2);
+                if (Math.abs(a - b) < 0.01) a = Number((a + 1.5).toFixed(4));
+                if (a < b) [a, b] = [b, a];
+                ans = Number((a - b).toFixed(4));
+                sym = '−';
+            } else if (op === 'mul') {
+                if (level === 1) {
+                    a = makeDecimalWithPlaces(1, 9, 1);
+                    b = randChoice([randInt(2, 9), makeDecimalWithPlaces(0, 4, 1)]);
+                } else if (level === 2) {
+                    a = makeDecimalWithPlaces(1, 12, randChoice([1, 2]));
+                    b = makeDecimalWithPlaces(0, 6, 1);
+                } else {
+                    a = makeDecimalWithPlaces(1, 15, 2);
+                    b = makeDecimalWithPlaces(0, 8, randChoice([1, 2]));
+                }
+                ans = Number((a * b).toFixed(5));
+                sym = '·';
+            } else if (op === 'div') {
+                // Генерируем конечное частное и делитель, чтобы деление было нацело без бесконечных дробей
+                if (level === 1) {
+                    ans = makeDecimalWithPlaces(1, 9, 1);
+                    b = randChoice([2, 4, 5, 8, 0.2, 0.5]);
+                } else if (level === 2) {
+                    ans = makeDecimalWithPlaces(1, 14, randChoice([1, 2]));
+                    b = randChoice([0.2, 0.4, 0.5, 0.8, 1.2, 1.5, 2.5]);
+                } else {
+                    ans = makeDecimalWithPlaces(1, 18, randChoice([2, 3]));
+                    b = randChoice([0.04, 0.05, 0.12, 0.25, 0.4, 0.5, 1.25]);
+                }
+                a = Number((ans * b).toFixed(6));
+                sym = ':';
+            }
+
+            return {
+                type: 'decimal',
+                op, a, b, ans, sym,
+                textExpr: `${fmtDec(a)} ${sym} ${fmtDec(b)}`
+            };
+        }
+
+        // Отрисовка арены
+        function renderCommonArena(task) {
+            const hint = document.getElementById('taskHint');
+            const box = document.getElementById('equationBox');
+
+            if (task.op === 'red') {
+                hint.textContent = 'Сократите дробь до несократимого вида:';
+                box.innerHTML = `
+                    <div class="fraction">
+                        <span class="num">${task.n1}</span>
+                        <span class="den">${task.d1}</span>
+                    </div>
+                    <span>=</span>
+                    <div class="fraction-input">
+                        <input type="number" id="inputNum" class="math-input" placeholder="числ." autocomplete="off">
+                        <div class="line"></div>
+                        <input type="number" id="inputDen" class="math-input" placeholder="знам." autocomplete="off">
+                    </div>
+                `;
+            } else {
+                hint.textContent = 'Вычислите значение выражения (можно вводить сокращённую или несокращённую дробь):';
+                box.innerHTML = `
+                    <div class="fraction">
+                        <span class="num">${task.n1}</span>
+                        <span class="den">${task.d1}</span>
+                    </div>
+                    <span>${task.sym}</span>
+                    <div class="fraction">
+                        <span class="num">${task.n2}</span>
+                        <span class="den">${task.d2}</span>
+                    </div>
+                    <span>=</span>
+                    <div class="fraction-input">
+                        <input type="number" id="inputNum" class="math-input" placeholder="числ." autocomplete="off">
+                        <div class="line"></div>
+                        <input type="number" id="inputDen" class="math-input" placeholder="знам." autocomplete="off">
+                    </div>
+                `;
+            }
+        }
+
+        function renderDecimalArena(task) {
+            document.getElementById('taskHint').textContent = 'Вычислите (можно использовать точку или запятую):';
+            document.getElementById('equationBox').innerHTML = `
+                <span>${fmtDec(task.a)}</span>
+                <span>${task.sym}</span>
+                <span>${fmtDec(task.b)}</span>
+                <span>=</span>
+                <input type="text" inputmode="decimal" id="inputDec" class="math-input decimal-input" placeholder="Ответ" autocomplete="off">
+            `;
+        }
+
+        function focusFirstInput() {
+            const first = document.getElementById('inputNum') || document.getElementById('inputDec');
+            if (first) first.focus();
+        }
+
+        // Проверка ответа
+        function checkAnswer() {
+            if (state.answeredCurrent) return;
+
+            const task = state.currentTask;
+            const fb = document.getElementById('feedbackBox');
+            let isCorrect = false;
+            let userText = '';
+            let rightText = '';
+            let extraNote = '';
+
+            if (task.type === 'common') {
+                const rawN = document.getElementById('inputNum').value.trim();
+                const rawD = document.getElementById('inputDen').value.trim();
+
+                if (!rawN || !rawD) {
+                    fb.className = 'feedback error';
+                    fb.textContent = '⚠️ Пожалуйста, заполните и числитель, и знаменатель!';
+                    return;
+                }
+
+                const uN = parseInt(rawN, 10);
+                const uD = parseInt(rawD, 10);
+
+                if (isNaN(uN) || isNaN(uD) || uD === 0) {
+                    fb.className = 'feedback error';
+                    fb.textContent = '⚠️ Знаменатель не может быть равен нулю!';
+                    return;
+                }
+
+                userText = `${uN}/${uD}`;
+                rightText = `${task.ansN}/${task.ansD}`;
+
+                if (task.op === 'red') {
+                    // В режиме сокращения требуется строго несократимая дробь
+                    const equivalent = (uN * task.ansD === uD * task.ansN) && uD > 0;
+                    const reduced = gcd(uN, uD) === 1;
+                    isCorrect = equivalent && reduced;
+                    if (equivalent && !reduced) {
+                        extraNote = ` (Дробь сокращена не до конца! Несократимый ответ: ${rightText})`;
+                    }
+                } else {
+                    // В арифметике проверяем эквивалентность a/b == c/d
+                    isCorrect = (uN * task.ansD === uD * task.ansN) && (uN * uD > 0);
+                    if (isCorrect && gcd(uN, uD) > 1) {
+                        extraNote = ` (Отлично! После сокращения получится ${rightText})`;
+                    }
+                }
+            } else {
+                const rawDec = document.getElementById('inputDec').value.trim().replace(',', '.');
+                if (!rawDec || isNaN(Number(rawDec))) {
+                    fb.className = 'feedback error';
+                    fb.textContent = '⚠️ Введите корректное число!';
+                    return;
+                }
+
+                const uVal = parseFloat(rawDec);
+                userText = fmtDec(uVal);
+                rightText = fmtDec(task.ans);
+                isCorrect = Math.abs(uVal - task.ans) < 1e-6;
+            }
+
+            state.answeredCurrent = true;
+            document.getElementById('checkBtn').disabled = true;
+            state.totalCount++;
+
+            if (isCorrect) {
+                state.streak++;
+                state.correctCount++;
+                fb.className = 'feedback success';
+                fb.textContent = `🎉 Верно! Молодец!${extraNote}`;
+            } else {
+                state.streak = 0;
+                fb.className = 'feedback error';
+                fb.textContent = `❌ Ошибка. Правильный ответ: ${rightText}${extraNote}`;
+            }
+
+            // Запись в историю
+            const record = {
+                time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                date: new Date().toLocaleDateString('ru-RU'),
+                student: state.studentName || 'Ученик',
+                blockName: state.block === 'common' ? 'Обыкновенные' : 'Десятичные',
+                level: state.level,
+                expr: task.textExpr,
+                userAns: userText,
+                rightAns: rightText,
+                isCorrect
+            };
+
+            state.history.unshift(record);
+            localStorage.setItem('math_trainer_history', JSON.stringify(state.history));
+
+            updateStatsUI();
+            renderHistory();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('streakCount').textContent = state.streak;
+            document.getElementById('totalCorrect').textContent = state.correctCount;
+            document.getElementById('totalSolved').textContent = state.totalCount;
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (state.history.length === 0) {
+                list.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 14px;">Пока нет решённых примеров. Начни тренировку!</div>`;
+                return;
+            }
+
+            list.innerHTML = state.history.map(item => `
+                <div class="history-item ${item.isCorrect ? 'ok' : 'fail'}">
+                    <div>
+                        <strong>${item.expr} = ${item.userAns}</strong>
+                        ${!item.isCorrect ? `<span style="color: var(--error); font-size:0.85rem;"> (верно: ${item.rightAns})</span>` : ''}
+                        <div class="history-meta">${item.blockName} • Ур. ${item.level} • Ученик: ${item.student}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span>${item.isCorrect ? '✅ Верно' : '❌ Ошибка'}</span>
+                        <div class="history-meta">${item.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Выгрузка истории в текстовый файл (.txt)
+        function downloadHistoryTxt() {
+            if (state.history.length === 0) {
+                alert('История пока пуста! Решите хотя бы один пример.');
+                return;
+            }
+
+            const student = state.studentName || 'Ученик';
+            const total = state.history.length;
+            const correct = state.history.filter(h => h.isCorrect).length;
+            const percent = Math.round((correct / total) * 100);
+
+            let lines = [
+                '==========================================================',
+                '   ОТЧЁТ ПО ТРЕНАЖЁРУ «АРИФМЕТИКА ДРОБЕЙ» (5-6 КЛАСС)',
+                '==========================================================',
+                `Ученик: ${student}`,
+                `Дата выгрузки: ${new Date().toLocaleString('ru-RU')}`,
+                `Всего решено: ${total} | Верно: ${correct} | Успешность: ${percent}%`,
+                '----------------------------------------------------------',
+                'ХРОНОЛОГИЯ РЕШЕНИЙ:',
+                ''
+            ];
+
+            state.history.slice().reverse().forEach((h, idx) => {
+                const status = h.isCorrect ? '[ВЕРНО]' : `[ОШИБКА | Правильный ответ: ${h.rightAns}]`;
+                lines.push(`${idx + 1}. [${h.date} ${h.time}] (${h.blockName}, Уровень ${h.level}) Пример: ${h.expr} = ${h.userAns} ---> ${status}`);
+            });
+
+            lines.push('==========================================================');
+
+            const blob = new Blob([lines.join('\r\n')], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const safeName = student.replace(/[^a-zа-яё0-9_-]/gi, '_');
+            a.href = url;
+            a.download = `Отчет_Дроби_${safeName}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearHistory() {
+            if (!confirm('Очистить всю историю решений и сбросить счётчик?')) return;
+            state.history = [];
+            state.streak = 0;
+            state.correctCount = 0;
+            state.totalCount = 0;
+            localStorage.removeItem('math_trainer_history');
+            updateStatsUI();
+            renderHistory();
+        }
+    </script>
+</body>
+</html>
