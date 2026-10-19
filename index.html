@@ -502,6 +502,12 @@
     <p class="subtitle">Тренируй обыкновенные и десятичные дроби, свойства степеней и корней</p>
   </header>
 
+  <!-- ИМЯ УЧЕНИКА ДЛЯ УЧИТЕЛЯ -->
+  <div style="background:var(--card-bg); border:2px solid var(--card-border); border-radius:var(--radius); padding:14px 18px; display:flex; align-items:center; gap:12px; box-shadow:var(--shadow); flex-wrap:wrap;">
+    <label for="studentNameInput" style="font-weight:700; color:#632235; font-size:14px; white-space:nowrap;">👤 Ученик (Имя и Фамилия):</label>
+    <input type="text" id="studentNameInput" placeholder="Введи своё имя..." style="flex:1; min-width:180px; padding:8px 14px; border:1.5px solid var(--card-border); border-radius:10px; font-size:14px; outline:none; background:#fff8fa; color:var(--text);" oninput="saveStudentName(this.value)">
+  </div>
+
   <!-- БЛОКИ ВЫБОРА РЕЖИМОВ (4 БЛОКА) -->
   <div class="sections-grid">
     
@@ -610,7 +616,11 @@
         <span class="stat-pill correct">Верно: <b id="statCorrect">0</b></span>
         <span class="stat-pill wrong">Ошибок: <b id="statWrong">0</b></span>
       </div>
-      <button class="clear-btn" onclick="clearHistory()">Очистить журнал</button>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <button class="btn btn-primary" style="padding:6px 12px; font-size:12px; border-radius:8px;" onclick="copyTeacherReport()">📋 Скопировать отчёт</button>
+        <button class="btn btn-next" style="padding:6px 12px; font-size:12px; border-radius:8px;" onclick="downloadTeacherReport()">📥 Скачать файл</button>
+        <button class="clear-btn" onclick="clearHistory()">Очистить</button>
+      </div>
     </div>
 
     <div class="history-list" id="historyList">
@@ -1082,6 +1092,85 @@
       renderHistory();
     }
   }
+
+  
+  // Сохранение имени ученика
+  function saveStudentName(val) {
+    try {
+      localStorage.setItem('math_student_name', val.trim());
+    } catch(e) {}
+  }
+  function loadStudentName() {
+    try {
+      const savedName = localStorage.getItem('math_student_name');
+      if (savedName) {
+        const inp = document.getElementById('studentNameInput');
+        if (inp) inp.value = savedName;
+      }
+    } catch(e) {}
+  }
+
+  // Генерация текста отчёта для учителя
+  function buildReportText() {
+    const name = document.getElementById('studentNameInput')?.value.trim() || 'Без имени';
+    const total = historyData.length;
+    const correct = historyData.filter(h => h.isCorrect).length;
+    const wrong = total - correct;
+    const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const dateStr = new Date().toLocaleDateString('ru-RU');
+
+    let text = `📊 ОТЧЁТ ПО ТРЕНАЖЁРУ МАТЕМАТИКИ\n`;
+    text += `👤 Ученик: ${name}\n`;
+    text += `📅 Дата: ${dateStr}\n`;
+    text += `📈 Результат: ${correct} из ${total} верно (${percent}%)\n`;
+    text += `------------------------------------\n`;
+    text += `ПОДРОБНЫЙ СПИСОК РЕШЕНИЙ:\n`;
+
+    if (!historyData.length) {
+      text += `(Решений пока нет)\n`;
+    } else {
+      historyData.forEach((item, idx) => {
+        const mark = item.isCorrect ? '✅ Верно' : '❌ Ошибка';
+        text += `${idx + 1}) [${item.time}] ${item.task} = ${item.answer} | ${mark}\n`;
+      });
+    }
+    return text;
+  }
+
+  // Скопировать отчёт в буфер обмена
+  function copyTeacherReport() {
+    if (!historyData.length) {
+      alert("История пока пуста! Пусть ученик сначала решит несколько примеров.");
+      return;
+    }
+    const report = buildReportText();
+    navigator.clipboard.writeText(report).then(() => {
+      alert("✅ Отчёт скопирован в буфер обмена! Теперь его можно вставить и отправить в Telegram, WhatsApp или личные сообщения.");
+    }).catch(() => {
+      prompt("Скопируйте отчёт вручную:", report);
+    });
+  }
+
+  // Скачать текстовый файл с отчётом
+  function downloadTeacherReport() {
+    if (!historyData.length) {
+      alert("История пока пуста!");
+      return;
+    }
+    const report = buildReportText();
+    const name = document.getElementById('studentNameInput')?.value.trim() || 'student';
+    const safeName = name.replace(/[^a-zA-Zа-яА-Я0-9_-]/g, '_');
+    const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Отчёт_${safeName}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Загружаем имя при старте
+  loadStudentName();
 
   // Запуск при старте
   renderHistory();
